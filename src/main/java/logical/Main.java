@@ -4,6 +4,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -11,13 +12,15 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Digite una URL valida (Sin https://www.): ");
+        System.out.println("Digite una URL valida (Sin http://www.): ");
         Scanner scanner = new Scanner(System.in);
-        String url = "https://www." + scanner.nextLine();
+        String url = "http://" + scanner.nextLine();
+        Connection.Response con;
         Document page = Jsoup.connect(url).get();
+        con = Jsoup.connect(url).execute();
 
         //a) Indicar la cantidad de lineas del recurso retornado.
-        int lineas = page.html().split("\n").length;
+        int lineas = con.body().split("\n").length;
         //b) Indicar la cantidad de párrafos (p) que contiene el documento HTML.
         int parrafos = page.getElementsByTag("p").size();
 
@@ -33,42 +36,40 @@ public class Main {
         puntoE(page);
         pause(scanner);
         System.out.println("\n");
-        puntoF(page,url);
+        puntoF(page);
     }
 
-    private static void pause(Scanner scanner){
+    private static void pause(Scanner scanner) {
         System.out.println("Presione enter para continuar...");
         String p = scanner.nextLine();
 
     }
-    private static int puntoC(Document d){
+
+    private static int puntoC(Document d) {
         int imagenes = 0;
-        for(Element e : d.getElementsByTag("p")){
+        for (Element e : d.getElementsByTag("p")) {
 
-           if(e.toString().contains("<img"))
-               imagenes++;
+            if (e.toString().contains("<img"))
+                imagenes++;
 
-            }
+        }
 
         return imagenes;
     }
 
-    private static int puntoDpost(Document d){
+    private static int puntoDpost(Document d) {
         int post = 0;
-        for(Element e : d.getElementsByTag("form")){
-            for(Element e2 : d.getElementsByAttributeValue("method","post")){
-                post++;
-            }
+        for (Element e : d.getElementsByAttributeValue("method", "post")) {
+            post++;
+
         }
         return post;
     }
 
-    private static int puntoDget(Document d){
+    private static int puntoDget(Document d) {
         int get = 0;
-        for(Element e : d.getElementsByTag("form")){
-            for(Element e2 : d.getElementsByAttributeValue("method","get")){
-                get++;
-            }
+        for (Element e : d.getElementsByAttributeValue("method", "get")) {
+            get++;
         }
         return get;
     }
@@ -77,12 +78,12 @@ public class Main {
         String id = " ";
         for (Element e1 : d.getElementsByTag("form")) {
 
-            if(e1.attributes().get("id").equalsIgnoreCase("  ")){
+            if (e1.attributes().get("id").equalsIgnoreCase("  ")) {
                 id = "-el form no tiene id-";
-            }else{
-                id= e1.attributes().get("id");
+            } else {
+                id = e1.attributes().get("id");
             }
-            System.out.println("El form " + id + " tiene input de tipo: " +"\n");
+            System.out.println("El form " + id + " tiene input de tipo: " + "\n");
 
             for (Element e : d.getElementsByTag("input")) {
 
@@ -93,18 +94,24 @@ public class Main {
 
     }
 
-    private static void puntoF(Document d, String url) throws IOException {
-        Connection.Response response =
-                Jsoup.connect(url)
-                        .data("asignatura","practica1")
-                        .header("matricula","2014-0717")
-                        .method(Connection.Method.POST)
-                        .execute();
+    private static void puntoF(Document d) throws IOException {
+        for (Element form : d.getElementsByTag("form")) {
+            Elements fs = form.getElementsByAttributeValueContaining("method", "post");
+            for (Element f : fs) {
 
-        //parse the document from response
-        System.out.println(response.parse());
-        System.out.println("\n***Estado:"+ response.statusMessage());
-        System.out.println("\n***Codigo:"+ response.statusCode());
+                    System.out.println("Form " + f.id() + ":");
+                    String aurl = f.absUrl("action");
+                    Document resp = Jsoup.connect(aurl)
+                            .data("asignatura", "practica1")
+                            .header("matricula", "20140717")
+                            .post();
+
+                    System.out.println(resp.body());
+
+
+
+            }
+        }
 
     }
 }
