@@ -39,6 +39,7 @@ public class Main {
     private static void pause(Scanner scanner){
         System.out.println("Presione enter para continuar...");
         String p = scanner.nextLine();
+
     }
     private static int puntoC(Document d){
         int imagenes = 0;
@@ -102,8 +103,8 @@ public class Main {
 
         //parse the document from response
         System.out.println(response.parse());
-        System.out.println(response.statusMessage());
-        System.out.println(response.statusCode());
+        System.out.println("\n***Estado:"+ response.statusMessage());
+        System.out.println("\n***Codigo:"+ response.statusCode());
 
     }
 }
