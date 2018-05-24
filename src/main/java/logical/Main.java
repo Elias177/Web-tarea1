@@ -93,18 +93,6 @@ public class Main {
     }
 
     private static void puntoF(Document d, String url) throws IOException {
-        Element eP = d.createElement("inte");
-        for (Element e1 : d.getElementsByTag("form")) {
-
-            for(Element e2 : d.getElementsByAttributeValue("method","post")){
-
-                eP = e2;
-            }
-
-
-        }
-
-
         Connection.Response response =
                 Jsoup.connect(url)
                         .data("asignatura","practica1")
